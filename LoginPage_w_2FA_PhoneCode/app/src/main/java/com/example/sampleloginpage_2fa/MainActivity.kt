@@ -1,9 +1,13 @@
 package com.example.sampleloginpage_2fa
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.FirebaseApp
@@ -20,8 +24,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var password: EditText
     lateinit var phone: EditText
     lateinit var verificationCode: EditText
+    lateinit var verification: TextView
     lateinit var loginBtn: Button
-    lateinit var auth: FirebaseAuth
+    private lateinit var auth: FirebaseAuth
     private var verificationId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +39,10 @@ class MainActivity : AppCompatActivity() {
         username = findViewById(R.id.usernamefield)
         password = findViewById(R.id.passwordfield)
         phone = findViewById(R.id.phone)
-        verificationCode = findViewById(R.id.vid)
+        verificationCode = findViewById(R.id.verificationfield)
+        verification = findViewById(R.id.vidid)
+        verificationCode.visibility = View.GONE
+        verification.visibility = View.GONE
         loginBtn = findViewById(R.id.button)
 
         loginBtn.setOnClickListener {
@@ -68,12 +76,30 @@ class MainActivity : AppCompatActivity() {
 
                         // Show the verification code input field and enable the login button
                         verificationCode.visibility = View.VISIBLE
+                        verification.visibility = View.VISIBLE
                         loginBtn.isEnabled = true
                     }
                 })
                 .build()
             PhoneAuthProvider.verifyPhoneNumber(options)
+
+            loginBtn.isEnabled = false // Disable login button while waiting for verification code
         }
+
+        verificationCode.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val enteredVerificationCode = verificationCode.text.toString()
+
+                if (enteredVerificationCode.isNotEmpty() && verificationId != null) {
+                    val credential = PhoneAuthProvider.getCredential(verificationId!!, enteredVerificationCode)
+                    signInWithCredential(credential)
+                }
+            }
+        })
     }
 
     private fun signInWithCredential(credential: PhoneAuthCredential) {
@@ -92,6 +118,9 @@ class MainActivity : AppCompatActivity() {
                     }
                 } else {
                     Toast.makeText(this, "Login Failed", Toast.LENGTH_SHORT).show()
+
+                    // Log the error for debugging
+                    Log.e("LoginActivity", "signInWithCredential:failure", task.exception)
                 }
             }
     }
