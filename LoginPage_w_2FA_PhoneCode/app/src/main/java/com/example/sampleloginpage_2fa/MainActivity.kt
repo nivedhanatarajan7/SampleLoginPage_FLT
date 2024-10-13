@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                 .build()
             PhoneAuthProvider.verifyPhoneNumber(options)
 
-            loginBtn.isEnabled = false // Disable login button while waiting for verification code
+            loginBtn.isEnabled = true // Disable login button while waiting for verification code
         }
 
         verificationCode.addTextChangedListener(object : TextWatcher {
@@ -117,8 +117,6 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(this, "Login Failed: Username/Password incorrect", Toast.LENGTH_LONG).show()
                     }
                 } else {
-                    Toast.makeText(this, "Login Failed", Toast.LENGTH_SHORT).show()
-
                     // Log the error for debugging
                     Log.e("LoginActivity", "signInWithCredential:failure", task.exception)
                 }
