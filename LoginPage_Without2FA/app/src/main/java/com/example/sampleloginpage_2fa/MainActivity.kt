@@ -18,13 +18,17 @@ class MainActivity : AppCompatActivity() {
         val usernameEditText = findViewById<EditText>(R.id.username)
         val passwordEditText = findViewById<EditText>(R.id.password)
         val pinInstructions = findViewById<TextView>(R.id.pininstructions)
+        val pinCreateText = findViewById<EditText>(R.id.pinCreate)
+        val pinCreateInstructions = findViewById<TextView>(R.id.pincreateinstructions)
         val pinEditText = findViewById<EditText>(R.id.pin)
         val loginButton = findViewById<Button>(R.id.login_button)
+        val pinButton = findViewById<Button>(R.id.pin_button)
 
         // Load saved username
         val sharedPreferences = getSharedPreferences("LoginPrefs", Context.MODE_PRIVATE)
         val savedUsername = sharedPreferences.getString("username", "")
         usernameEditText.setText(savedUsername)
+        var validPin = sharedPreferences.getString("pin", "")
 
         // Show or hide fields based on saved username
         if (!savedUsername.isNullOrEmpty()) {
@@ -40,28 +44,46 @@ class MainActivity : AppCompatActivity() {
             val username = usernameEditText.text.toString()
             val password = passwordEditText.text.toString()
             val pin = pinEditText.text.toString()
+            var login = false;
 
-            if (validateLogin(username, password, pin)) {
-                // Save username
+            if (validPin?.let { it1 -> validateLogin(username, password, pin, it1) } == true) {
                 val editor = sharedPreferences.edit()
                 editor.putString("username", username)
                 editor.apply()
 
+                if (pin == "") {
+                    pinCreateText.visibility = View.VISIBLE
+                    pinCreateInstructions.visibility = View.VISIBLE
+                    pinButton.visibility = View.VISIBLE
+
+                    pinButton.setOnClickListener {
+                        validPin = pinCreateText.text.toString()
+
+                        if (validPin!!.length != 6) {
+                            Toast.makeText(this, "PIN is not 6 digits long", Toast.LENGTH_SHORT)
+                                .show()
+                            login = false;
+                        } else {
+                            editor.putString("pin", validPin)
+                            editor.apply()
+                            Toast.makeText(this, "PIN has been set", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
                 // Proceed with login
                 Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
             } else {
-                // Show error message
                 Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun validateLogin(username: String, password: String, pin: String): Boolean {
+    private fun validateLogin(username: String, password: String, pin: String, savedPin: String): Boolean {
         // Replace with your actual validation logic
         val validUsername = "user"
         val validPassword = "password"
-        val validPin = "123456"
 
-        return (username == validUsername && password == validPassword) || (pin.length == 6 && pin == validPin)
+        return (username == validUsername && password == validPassword) || (pin.length == 6 && pin == savedPin)
     }
 }
