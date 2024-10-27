@@ -17,12 +17,16 @@ class MainActivity : AppCompatActivity() {
 
         val usernameEditText = findViewById<EditText>(R.id.username)
         val passwordEditText = findViewById<EditText>(R.id.password)
+        val passwordInstruct = findViewById<TextView>(R.id.passInstructions)
         val pinInstructions = findViewById<TextView>(R.id.pininstructions)
         val pinCreateText = findViewById<EditText>(R.id.pinCreate)
         val pinCreateInstructions = findViewById<TextView>(R.id.pincreateinstructions)
         val pinEditText = findViewById<EditText>(R.id.pin)
         val loginButton = findViewById<Button>(R.id.login_button)
         val pinButton = findViewById<Button>(R.id.pin_button)
+        val usePassButton = findViewById<Button>(R.id.usePass)
+        val usePinButton = findViewById<Button>(R.id.usePin)
+        var onPurposePassword = false;
 
         // Load saved username
         val sharedPreferences = getSharedPreferences("LoginPrefs", Context.MODE_PRIVATE)
@@ -35,9 +39,32 @@ class MainActivity : AppCompatActivity() {
             passwordEditText.visibility = View.GONE
             pinEditText.visibility = View.VISIBLE
             pinInstructions.visibility = View.VISIBLE
+            usePassButton.visibility = View.VISIBLE
         } else {
             passwordEditText.visibility = View.VISIBLE
+            passwordInstruct.visibility = View.VISIBLE
             pinEditText.visibility = View.GONE
+        }
+
+        usePassButton.setOnClickListener {
+            passwordEditText.visibility = View.VISIBLE
+            passwordInstruct.visibility = View.VISIBLE
+
+            pinEditText.visibility = View.GONE
+            pinInstructions.visibility = View.GONE
+            usePassButton.visibility = View.GONE
+            usePinButton.visibility = View.VISIBLE
+            onPurposePassword = true
+        }
+
+        usePinButton.setOnClickListener {
+            passwordEditText.visibility = View.GONE
+            passwordInstruct.visibility = View.GONE
+
+            pinEditText.visibility = View.VISIBLE
+            pinInstructions.visibility = View.VISIBLE
+            usePassButton.visibility = View.VISIBLE
+            usePinButton.visibility = View.GONE
         }
 
         loginButton.setOnClickListener {
@@ -51,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                 editor.putString("username", username)
                 editor.apply()
 
-                if (pin == "") {
+                if (!onPurposePassword && pin == "") {
                     pinCreateText.visibility = View.VISIBLE
                     pinCreateInstructions.visibility = View.VISIBLE
                     pinButton.visibility = View.VISIBLE
