@@ -74,7 +74,6 @@ class MainActivity : AppCompatActivity() {
         Login validation (check username and password)
      */
     private fun validateLogin(username: String, password: String): Boolean {
-        // Replace with your actual validation logic
         val validUsername = "user"
         val validPassword = "password"
 
