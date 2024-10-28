@@ -134,7 +134,6 @@ class MainActivity : AppCompatActivity() {
         Login credentials validations (check username, password and pin)
      */
     private fun validateLogin(username: String, password: String, pin: String, savedPin: String): Boolean {
-        // Replace with your actual validation logic
         val validUsername = "user"
         val validPassword = "password"
 
