@@ -29,6 +29,8 @@ class MainActivity : AppCompatActivity() {
         val pinButton = findViewById<Button>(R.id.pin_button)
         val usePassButton = findViewById<Button>(R.id.usePass)
         val usePinButton = findViewById<Button>(R.id.usePin)
+
+        // Is user has already has successful login attempt and has option to use PIN for authentication but purposely uses password
         var onPurposePassword = false;
 
         /*
