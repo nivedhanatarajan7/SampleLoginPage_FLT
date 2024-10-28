@@ -14,16 +14,22 @@ import androidx.core.content.ContextCompat
 
 // Inspired by https://github.com/ChaitanyaDuse/SecureAndroidApp
 
+/*
+    Check if the system can use biometrics for authentication
+ */
 fun checkBiometricAuthentication(
     activity: AppCompatActivity,
     bioMetricAuthCallBack: BioMetricAuthCallBack,
 ) {
     val biometricManager = BiometricManager.from(activity)
     when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
+        // Authenticate using biometrics
         BiometricManager.BIOMETRIC_SUCCESS -> {
             Log.d("MY_APP_TAG", "App can authenticate using biometrics.")
             biometric(activity, bioMetricAuthCallBack)
         }
+
+        // Request to apply for biometrics
         BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
             val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
                 putExtra(
@@ -31,6 +37,8 @@ fun checkBiometricAuthentication(
                     BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
                 )
             }
+
+            // Device does not have biometrics available
             val authAvailabilityResult = activity.registerForActivityResult(
                 ActivityResultContracts.StartActivityForResult(),
                 ActivityResultCallback { result ->
@@ -42,15 +50,18 @@ fun checkBiometricAuthentication(
     }
 }
 
-
+/*
+    Log in with biometrics
+ */
 private fun biometric(
     activity: AppCompatActivity,
     bioMetricAuthCallBack: BioMetricAuthCallBack,
 ) {
-
     val executor = ContextCompat.getMainExecutor(activity)
+    // Biometrics prompt
     val biometricPrompt = BiometricPrompt(activity, executor,
         object : BiometricPrompt.AuthenticationCallback() {
+            // Authentication error
             override fun onAuthenticationError(
                 errorCode: Int,
                 errString: CharSequence
@@ -59,6 +70,7 @@ private fun biometric(
                 Toast.makeText(activity.applicationContext,"Authentication error: $errString", Toast.LENGTH_SHORT).show()
             }
 
+            // Authentication succeeded
             override fun onAuthenticationSucceeded(
                 result: BiometricPrompt.AuthenticationResult
             ) {
@@ -66,12 +78,14 @@ private fun biometric(
                 bioMetricAuthCallBack.onSuccess()
             }
 
+            // Authentication failed
             override fun onAuthenticationFailed() {
                 super.onAuthenticationFailed()
 
             }
         })
 
+    // Prompt info (display attributes)
     val promptInfo = BiometricPrompt.PromptInfo.Builder()
         .setTitle("Authenticate with fingerprint or facial recognition")
         .setSubtitle("Use fingerprint or facial recognition")
@@ -80,6 +94,9 @@ private fun biometric(
     biometricPrompt.authenticate(promptInfo.build())
 }
 
+/*
+    Biometrics authentication callback method
+ */
 interface BioMetricAuthCallBack {
     fun onSuccess()
     fun onError()
